@@ -30,6 +30,7 @@ import indi.liyi.viewer.listener.OnItemLongPressListener;
 import indi.liyi.viewer.otherui.DefaultIndexUI;
 import indi.liyi.viewer.otherui.DefaultProgressUI;
 import indi.liyi.viewer.otherui.DeleteIndexUI;
+import indi.liyi.viewer.otherui.DownloadIndexUI;
 import indi.liyi.viewer.otherui.IndexUI;
 import indi.liyi.viewer.otherui.ProgressUI;
 import indi.liyi.viewer.viewpager.ImagePagerAdapter;
@@ -37,12 +38,14 @@ import indi.liyi.viewer.viewpager.ImageViewPager;
 
 
 public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeListener,
-        DeleteIndexUI.DeleteClickListener {
+        DeleteIndexUI.DeleteClickListener ,DownloadIndexUI.DownloadClickListener{
     private final String TAG = getClass().getSimpleName();
 
     // 索引视图
     private IndexUI indexUI;
     private DeleteIndexUI deleteIndexUI;
+
+    private DownloadIndexUI downloadIndexUI;
     // 加载进度视图
     private ProgressUI progressUI;
     private ImageViewPager viewPager;
@@ -630,17 +633,30 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
                 deleteIndexUI.setDeleteListener(this);
             }
         }
+        if(downloadIndexUI==null){
+            downloadIndexUI=new DownloadIndexUI(overlayStatusBar);
+            downloadIndexUI.setDownloadMenuVisible(downloadMenuVisible);
+            if(downloadClickListener!=null){
+                downloadIndexUI.setDownloadListener(this);
+            }
+        }
         if (showIndex) {
             if (mSourceList.size() > 0) {
                 deleteIndexUI.setup(this, getContext());
+                downloadIndexUI.setup(this,getContext());
             } else {
                 deleteIndexUI.hide();
+                downloadIndexUI.hide();
             }
         } else {
             deleteIndexUI.hide();
+            downloadIndexUI.hide();
         }
     }
 
+    /**
+     * 删除相关
+     */
     @Override
     public void clickDeletePhoto() {
         if (deleteClickListener != null) {
@@ -652,9 +668,7 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
         void clickDeletePhoto(int position);
     }
 
-
     private DeleteClickListener deleteClickListener = null;
-    private boolean showDeleteMenu = true;
 
     public ImageViewer setDeleteListener(DeleteClickListener listener, boolean showDeleteMenu) {
         this.deleteClickListener = listener;
@@ -668,6 +682,36 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
         this.deleteMenuVisible = visible;
         return this;
     }
+
+    /**
+     * 下载相关
+     */
+    public interface DownloadClickListener{
+        void clickDownloadPhoto(int position);
+    }
+
+    @Override
+    public void clickDownloadPhoto() {
+        if (downloadClickListener != null) {
+            downloadClickListener.clickDownloadPhoto(currentPosition);
+        }
+    }
+
+    private DownloadClickListener downloadClickListener = null;
+
+    public ImageViewer setDownloadListener(DownloadClickListener listener, boolean showDownloadMenu) {
+        this.downloadClickListener = listener;
+        this.downloadMenuVisible = showDownloadMenu;
+        return this;
+    }
+
+    private boolean downloadMenuVisible = false;
+
+    public ImageViewer setDownloadMenuVisible(boolean visible) {
+        this.downloadMenuVisible = visible;
+        return this;
+    }
+    //
 
     private void shutComplete() {
         setVisibility(GONE);
@@ -767,6 +811,7 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
             mLastX = event.getX();
             mLastY = event.getY();
             deleteIndexUI.hide();
+            downloadIndexUI.hide();
         } else if (action == MotionEvent.ACTION_UP) {
             if (draggable && isDragging && mDragHandler != null) {
                 isDragging = false;
@@ -829,6 +874,7 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
                 viewPager.setScrollable(true);
                 hasAnimRunning = false;
                 deleteIndexUI.show();
+                downloadIndexUI.show();
             }
             noteDragStatus(status);
         } else if (mDragHandler.getAction() == ImageTransfer.ACTION_DRAG_EXIT_AGILE

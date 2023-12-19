@@ -1,0 +1,9 @@
+ext {
+    androidBuild = [
+            versionName: "1.0.2",
+            versionCode: 3,
+    ]
+    GROUP = 'com.druid.image'
+    POM_URL = 'http://192.168.88.148:8081/repository/druid/'
+    POM_PACKAGING = 'aar'
+}

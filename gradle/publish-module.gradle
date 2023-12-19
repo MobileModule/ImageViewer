@@ -1,0 +1,50 @@
+apply plugin: 'maven-publish'
+apply from: rootProject.file("gradle/git-tag-version.gradle")
+
+group = GROUP
+version = getVersionNameFromTags()
+
+//task androidSourcesJar(type: Jar) {
+//    from android.sourceSets.main.java.srcDirs
+//}
+
+task generateSourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier "sources"
+}
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = GROUP
+            version = version
+            afterEvaluate { artifact(tasks.getByName("bundleReleaseAar")) }
+            artifact generateSourcesJar
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode("dependencies")
+                configurations.implementation.allDependencies.forEach() {
+                    Dependency dependency ->
+                        if (dependency.version != "unspecified" && dependency.name != "unspecified") {
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', dependency.group)
+                            dependencyNode.appendNode('artifactId', dependency.name)
+                            dependencyNode.appendNode('version', dependency.version)
+                        }
+                }
+            }
+        }
+    }
+    Properties mProperties = new Properties()
+    mProperties.load(project.rootProject.file('local.properties').newDataInputStream())
+    def pomPwd = mProperties.containsKey('POM_PWD')?mProperties.get('POM_PWD').toString():'pwd'
+    repositories {
+        maven {
+            allowInsecureProtocol = true
+            url = POM_URL
+            credentials {
+                username = 'druid'
+                password = pomPwd
+            }
+        }
+    }
+}

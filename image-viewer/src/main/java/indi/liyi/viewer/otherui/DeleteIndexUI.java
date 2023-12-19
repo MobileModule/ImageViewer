@@ -36,11 +36,11 @@ public class DeleteIndexUI {
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT);
         int margin = overlayStatusBar ? Utils.getStatusBarHeight(context) + 5 : 5;
-        textParams.setMargins(0, margin, 20, 0);
+        textParams.setMargins(0, margin, 40, 0);
         textParams.gravity = Gravity.TOP | Gravity.RIGHT;
         deleteView.setLayoutParams(textParams);
         deleteView.setIncludeFontPadding(false);
-        deleteView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        deleteView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
         deleteView.setTextColor(Color.WHITE);
         deleteView.setText(context.getString(R.string.delete));
         deleteView.setOnClickListener(onClickListener);

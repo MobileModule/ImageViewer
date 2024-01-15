@@ -31,10 +31,10 @@ publishing {
             allowInsecureProtocol = true
             url = pomURL
             //nexus
-//            credentials {
-//                username = 'druid'
-//                password = pomPwd
-//            }
+            credentials {
+                username = 'druid'
+                password = pomPwd
+            }
         }
     }
 }
